@@ -21,12 +21,14 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView listView;
 
-    private static final String[] movies = {"JAWS", "Airplane!", "Raiders of the Lost Ark", "Ghostbusters", "Groundhog Day", "Redline"};
-    String[] codes = {"tt0073195/", "tt0080339/", "tt0082971/", "tt0087332/", "tt0107048/", "tt1483797/"};
+    public String[] movies = {"JAWS", "Airplane!", "Raiders of the Lost Ark", "Ghostbusters", "Groundhog Day", "Redline"};
+    public String[] codes = {"tt0073195/", "tt0080339/", "tt0082971/", "tt0087332/", "tt0107048/", "tt1483797/"};
     private ArrayList<String> movieTitles;
     private ArrayList<String> movieCodes;
     int i1;
+    //notes
     private SharedPreferences p;
+    SharedPreferences.Editor editor;
     private Map<String, ?> map;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         p = getPreferences(Context.MODE_PRIVATE);
         map = p.getAll();
-
+        editor = p.edit();
         listView = findViewById(R.id.ListView);
         movieTitles = new ArrayList<String>();
         movieCodes = new ArrayList<String>();
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        String url = "https://www.imdb.com/title/" + codes[i];
+                        String url = "https://www.imdb.com/title/" + movieCodes.get(i);
                         Intent in = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         startActivity(in);
                     }
@@ -76,11 +78,13 @@ public class MainActivity extends AppCompatActivity {
                         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
+                                editor.remove(movieTitles.get(i1));
                                 movieTitles.remove(i1);
                                 movieCodes.remove(i1);
                                 ArrayAdapter<String> adapter;
                                 adapter = new ArrayAdapter<String>(getApplicationContext(), R.layout.list_item_view, movieTitles);
                                 listView.setAdapter(adapter);
+                                editor.apply();
 
                             }
                         });
@@ -114,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop(){
         super.onStop();
-        SharedPreferences.Editor editor = p.edit();
+        editor = p.edit();
         for(int i = 0; i < movieTitles.size(); i++){
             editor.putString(movieTitles.get(i), movieCodes.get(i));
 
